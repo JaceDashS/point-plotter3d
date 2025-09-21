@@ -42,6 +42,9 @@ class MainController:
         # 패널 리스트 업데이트
         self.panel.add_list_item(*p)
 
+        # 입력 필드 비우기
+        self.panel.clear_input()
+
         self._set_status(f"Added point {p}", error=False)
 
     def _on_clear(self):

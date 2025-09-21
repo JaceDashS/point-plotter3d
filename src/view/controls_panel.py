@@ -11,13 +11,36 @@ class ControlsPanel(QtWidgets.QGroupBox):
         layout.setSpacing(8)
 
         # 안내 레이블
-        hint = QtWidgets.QLabel("Enter 3D point as text:  x,y,z\n(e.g., 1.2, -3, 4)")
+        hint = QtWidgets.QLabel("Enter 3D point coordinates:")
         layout.addWidget(hint)
 
-        # 입력창
-        self.input_edit = QtWidgets.QLineEdit()
-        self.input_edit.setPlaceholderText("x,y,z")
-        layout.addWidget(self.input_edit)
+        # X, Y, Z 입력 필드들
+        input_layout = QtWidgets.QGridLayout()
+        
+        # X 좌표
+        input_layout.addWidget(QtWidgets.QLabel("X:"), 0, 0)
+        self.input_x = QtWidgets.QLineEdit()
+        self.input_x.setPlaceholderText("0.0")
+        input_layout.addWidget(self.input_x, 0, 1)
+        
+        # Y 좌표
+        input_layout.addWidget(QtWidgets.QLabel("Y:"), 1, 0)
+        self.input_y = QtWidgets.QLineEdit()
+        self.input_y.setPlaceholderText("0.0")
+        input_layout.addWidget(self.input_y, 1, 1)
+        
+        # Z 좌표
+        input_layout.addWidget(QtWidgets.QLabel("Z:"), 2, 0)
+        self.input_z = QtWidgets.QLineEdit()
+        self.input_z.setPlaceholderText("0.0")
+        input_layout.addWidget(self.input_z, 2, 1)
+        
+        layout.addLayout(input_layout)
+        
+        # Tab 키 순서 설정 (X → Y → Z → Add 버튼)
+        self.input_x.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
+        self.input_y.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
+        self.input_z.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
 
         # 버튼 영역
         btn_row = QtWidgets.QHBoxLayout()
@@ -41,8 +64,10 @@ class ControlsPanel(QtWidgets.QGroupBox):
         self.btn_clear.clicked.connect(self.clearRequested.emit)
         self.btn_reset.clicked.connect(self.resetRequested.emit)
 
-        # Enter 입력으로도 Add
-        self.input_edit.returnPressed.connect(self._emit_add_from_button)
+        # Enter 입력으로도 Add (모든 입력 필드에서)
+        self.input_x.returnPressed.connect(self._emit_add_from_button)
+        self.input_y.returnPressed.connect(self._emit_add_from_button)
+        self.input_z.returnPressed.connect(self._emit_add_from_button)
 
     # 외부(메인윈도우 단축키)에서 재사용할 수 있게 노출
     def emit_add(self):
@@ -55,7 +80,10 @@ class ControlsPanel(QtWidgets.QGroupBox):
         self.resetRequested.emit()
 
     def _emit_add_from_button(self):
-        text = self.input_edit.text().strip()
+        x = self.input_x.text().strip()
+        y = self.input_y.text().strip()
+        z = self.input_z.text().strip()
+        text = f"{x},{y},{z}"
         self.addRequested.emit(text)
 
     # 리스트 관리용 (컨트롤러에서 호출)
@@ -64,3 +92,10 @@ class ControlsPanel(QtWidgets.QGroupBox):
 
     def clear_list(self):
         self.list_widget.clear()
+    
+    def clear_input(self):
+        """입력 필드들을 비웁니다."""
+        self.input_x.clear()
+        self.input_y.clear()
+        self.input_z.clear()
+        self.input_x.setFocus()  # X 필드에 포커스 설정
